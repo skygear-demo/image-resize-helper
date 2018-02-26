@@ -9,15 +9,7 @@
     'endPoint': 'https://imageprocessing.skygeario.com/', // trailing slash is required
     'apiKey': '22aaa3c73b9249b6b838c0369ac06118',
   })
-  const arguments = {'food': 'salmon'};
-  skygear.lambda('food:buy', arguments)
-    .then(response => {
-      console.log(response);
-      // {'success': true, 'food': 'salmon'}
-    })
-    .catch(err => {
-       console.error(err);
-    });
+
   const img_url = {'image_url': 'http://www.petsworld.in/blog/wp-content/uploads/2014/09/cute-kittens.jpg'}
   skygear.lambda('image:resize', img_url)
      .then(response => {
