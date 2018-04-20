@@ -44,11 +44,12 @@ def smart_crop(image):
 
 
 	#url check:
+	
 	if validators.url(image): #if its a valid url
 		img = retrieve_url(image)
 	else:
 		img = cv2.imread(image)
-	
+	print(img)
 	tfnet = TFNet(options) #load the parameters of the CNN
 
 	data = tfnet.return_predict(img)
@@ -171,6 +172,6 @@ def retrieve_url(image_url):
 	return img
 
 
-#smart_crop("sample_img/sample_dog.jpg")
-keyword_generation('http://www.petsworld.in/blog/wp-content/uploads/2014/09/cute-kittens.jpg')
+smart_crop("cute-kittens.jpg")
+#smart_crop('http://www.petsworld.in/blog/wp-content/uploads/2014/09/cute-kittens.jpg')
 #keyword_generation("../cute-kittens.jpg")
