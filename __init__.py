@@ -2,11 +2,6 @@
 #import skygear
 #from scipy.misc import imread, imsave, imresize
 
-import os
-
-#os.system("pip install opencv-python")
-#os.system("pip install tensorflow")
-os.system("pip install .")
 import urllib.request
 import numpy as np
 
