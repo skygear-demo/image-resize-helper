@@ -1,13 +1,18 @@
 
 #import skygear
-from scipy.misc import imread, imsave, imresize
+#from scipy.misc import imread, imsave, imresize
+
+import os
+
+#os.system("pip install opencv-python")
+#os.system("pip install tensorflow")
+os.system("pip install .")
 import urllib.request
 import numpy as np
 
 from darkflow.net.build import TFNet
 import cv2
 import validators
-
 
 """using object detection for smart crop"""
 options = {"model": "cfg/tiny-yolo-voc.cfg", "load": "bin/tiny-yolo-voc.weights", "threshold": 0.1}
@@ -38,9 +43,26 @@ def search_biggest_object(data):
 
 	return max_index
 
+def search_highest_confidence(data):
+	"""searches bounding box with highest confidence and returns its index
+		in the given data, which is a list of dictionaries"""
+
+	length = len(data)
+	if length == 0:
+		return -1
+	else:
+		max_index = 0
+		for i in range(0, length):
+			if data[i]['confidence'] > data[max_index]['confidence']:
+				max_index = i
+
+
+	return max_index
+
 #skygear.op('image:smart_resize', user_required=False)
-def smart_crop(image): 
-	"""crop the image around the most prominent object in the image
+def smart_crop(image, highest_confidence = True, biggest_object=False): 
+	"""crop the image around the object in the image with highest confidence or with biggest size
+	   if both inputs are true then highest_confidence will be given more priority
 	   input is the standard format like jpg or png image"""
 
 
@@ -54,11 +76,19 @@ def smart_crop(image):
 	tfnet = TFNet(options) #load the parameters of the CNN
 
 	data = tfnet.return_predict(img)
-	i = search_biggest_object(data)
-	x_max = data[i]['bottomright']['x'] ##the labels are misleading
-	y_max = data[i]['bottomright']['y']
-	x_min = data[i]['topleft']['x']
-	y_min = data[i]['topleft']['y']
+	if highest_confidence == True:
+		i = search_highest_confidence(data)
+	else:
+		i = search_biggest_object(data)
+		
+	if i != -1:
+		x_max = data[i]['bottomright']['x'] ##the labels are misleading
+		y_max = data[i]['bottomright']['y']
+		x_min = data[i]['topleft']['x']
+		y_min = data[i]['topleft']['y']
+	else:
+		print("Error: no objects detected in the given image")
+		return
 	
 	result_img = img[y_min:y_max,x_min:x_max]
 	cv2.imshow("original image", img)
@@ -151,26 +181,6 @@ def resize(image, height = 300, width = 300, auto = True):
 
 
 
-#@skygear.op('image:resize', user_required=False)
-def resize_image(image_url, height = 125, width = 125):
-	#req = Request(image_url)
-	#url_response = urlopen(image_url)
-	#img_array = np.array(bytearray(url_response.read()), dtype=np.uint8)
-	#file = io.StringIO(urlopen(image_url).read())
-    img = imread('cute-kittens.jpg')
-	#resp = urlopen(image_url)
-	#img = np.asarray(bytearray(resp.read()), dtype="uint8")
-	#img = cv2.imdecode(img, -1)
-    print(img.shape)
-    modified_img = imresize(img, (height, width))
-    print("Resizing was successful!")
-    return {
-           'success': True,
-        }
-
-	#plot.imshow(img)
-	#plot.show()
-	#return modified_img
 
 
 def crop(image, x_min, x_max, y_min, y_max):
@@ -212,5 +222,5 @@ smart_crop("cute-kittens.jpg")
 #keyword_generation("../cute-kittens.jpg")
 
 
-resize_image('http://www.petsworld.in/blog/wp-content/uploads/2014/09/cute-kittens.jpg')
+resize('http://www.petsworld.in/blog/wp-content/uploads/2014/09/cute-kittens.jpg')
 
